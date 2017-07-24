@@ -1,0 +1,10 @@
+source 'https://rubygems.org'
+
+gem 'sinatra'
+gem 'sinatra-cross_origin'
+gem 'mongo'
+gem 'namey'
+gem 'bson_ext'
+gem 'mongoid'
+gem 'mongoid-autoinc'
+gem 'faker'

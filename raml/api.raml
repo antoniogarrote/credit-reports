@@ -1,0 +1,99 @@
+#%RAML 1.0
+
+title: Credit Reports HTTP API
+version: 1.0
+
+baseUri: http://localhost:4568
+
+uses:
+  rest: "http://localhost:8081/publishers/antoniogarrote/projects/rest-annotations/versions/current/rest.raml"
+  pagination: "http://localhost:8081/publishers/antoniogarrote/projects/pagination-annotations/versions/current/pagination.raml"
+
+types:
+
+  ApplicantData:
+    (rest.resource-type): Applicant
+    properties:
+      customer_id: integer
+      email: string
+
+  CreditReportData:
+    (rest.resource-type): CreditReport
+    properties:
+      id: integer
+      customer_id: integer
+      provider:
+        type: string
+        enum: [experian, equifax]
+      date: string
+      score:
+        type: string
+        enum: [A, B, C, D, E]
+
+/applicants:
+  (rest.resource-link): applicants
+  (rest.resource-collection): Applicant
+  get:
+    description: Returns all applicants we store credit report data
+    queryParameters:
+      skip:
+        (pagination.offset): true
+        required: false
+        type: integer
+      count:
+        (pagination.limit): true
+        required: false
+        type: integer
+    responses:
+      200:
+        body:
+          application/json: ApplicantData[]
+
+/applicants/{applicant_id}:
+  (rest.resource): Customer
+  uriParameters:
+    applicant_id:
+      (rest.resource-property): customer_id
+      type: integer
+  get:
+    description: Returns Applicant data
+    responses:
+      200:
+        body:
+          application/json:
+            type: ApplicantData
+
+
+/applicants/{applicant_id}/reports:
+  (rest.resource-collection): CreditReport
+  uriParameters:
+    applicant_id:
+      (rest.resource-property): customer_id
+      type: integer
+
+
+  get:
+    description: Returns the collection with all the CreditReports
+    responses:
+      200:
+        body:
+          application/json:
+            type: CreditReportData[]
+
+
+/applicants/{applicant_id}/reports/{id}:
+  (rest.resource): CreditReport
+  uriParameters:
+    applicant_id:
+      (rest.resource-property): customer_id
+      type: integer
+    id:
+      (rest.resource-property): id
+      type: integer
+  get:
+    description: Returns a single CreditReport
+    responses:
+      200:
+        body:
+          application/json:
+            type: CreditReportData
