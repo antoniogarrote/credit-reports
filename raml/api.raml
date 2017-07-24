@@ -50,7 +50,7 @@ types:
           application/json: ApplicantData[]
 
 /applicants/{applicant_id}:
-  (rest.resource): Customer
+  (rest.resource): Applicant
   uriParameters:
     applicant_id:
       (rest.resource-property): customer_id
