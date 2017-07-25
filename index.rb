@@ -12,18 +12,20 @@ get '/applicants' do
     CustomerData
       .skip(params[:skip].to_i)
       .limit(params[:count].to_i)
-      .to_json(except: :_id)
+      .map { |customer|
+        {:customer_id => customer[:customer_id], :email => customer[:email]}
+      }.to_json
   else
-    CustomerData.all.to_json(except: :_id)
+    CustomerData.all.map { |customer|
+      {:customer_id => customer[:customer_id], :email => customer[:email]}
+    }.to_json
   end
 end
 
 get '/applicants/:applicant_id' do
   begin
-    CustomerData
-      .where(customer_id: params[:applicant_id].to_i)
-      .first
-      .to_json(except: :_id)
+    customer = CustomerData.where(customer_id: params[:applicant_id].to_i).first
+    {:customer_id => customer[:customer_id], :email => customer[:email]}.to_json
   rescue Mongoid::Errors::DocumentNotFound
     nil
   end
@@ -31,9 +33,18 @@ end
 
 get '/applicants/:applicant_id/reports' do
   begin
-    puts "A"
-    reports = CreditReportData.where(customer_id: params[:applicant_id].to_i)
-    reports.all.to_json(except: :_id)
+    if (params[:skip])
+      puts "SKIPPING"
+      reports = CreditReportData
+                  .where(customer_id: params[:applicant_id].to_i)
+                  .skip(params[:skip].to_i)
+                  .limit(params[:count].to_i)
+      reports.all.to_json(except: :_id)
+    else
+      puts "ALL"
+      reports = CreditReportData.where(customer_id: params[:applicant_id].to_i)
+      reports.all.to_json(except: :_id)
+    end
   rescue Mongoid::Errors::DocumentNotFound
     nil
   end
@@ -41,7 +52,6 @@ end
 
 get '/applicants/:applicant_id/reports/:id' do
   begin
-    puts "B"
     CreditReportData
       .where(customer_id: params[:applicant_id].to_i,
              id: params[:id].to_i)

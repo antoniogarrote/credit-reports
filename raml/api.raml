@@ -71,10 +71,17 @@ types:
     applicant_id:
       (rest.resource-property): customer_id
       type: integer
-
-
   get:
     description: Returns the collection with all the CreditReports
+    queryParameters:
+      skip:
+        (pagination.offset): true
+        required: false
+        type: integer
+      count:
+        (pagination.limit): true
+        required: false
+        type: integer
     responses:
       200:
         body:
